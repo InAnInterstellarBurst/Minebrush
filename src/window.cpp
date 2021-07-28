@@ -19,6 +19,34 @@
 
 #include <algorithm>
 
+void field_item::handle_press()
+{
+	uncovered = true;
+	button->Disable();
+	window::uncovered++;
+
+	int neighbours = window::count_neighbouring_mines(button->GetId());
+	if(neighbours > 0)
+		button->SetLabel(std::to_string(neighbours));
+
+	const auto revproc = [&](field_item &i) {
+		if(!i.isMine && !i.uncovered) {
+			i.button->Disable();
+			i.uncovered = true;
+			window::uncovered++;
+			int n = window::count_neighbouring_mines(i.button->GetId());
+			if(n != 0)
+				i.button->SetLabel(std::to_string(n));
+		}
+	};
+
+	window::iterate_neighbours(button->GetId(), 2 - neighbours, revproc);
+}
+
+
+int window::uncovered = 0;
+int window::m_threshold = (gridWidth * gridHeight) - mineCount;
+
 bool window::m_firstclick = true;
 std::array<field_item, gridWidth * gridHeight> window::m_minefield;
 
@@ -41,18 +69,17 @@ window::window() : wxFrame(nullptr, wxID_ANY, "Minebrush", wxPoint(30, 30), wxSi
 void window::btn_click(wxCommandEvent &evt)
 {
 	if(window::m_firstclick)
-		gen_grid(evt.GetId());
+		gen_grid(evt);
 
-	field_item &tile = window::m_minefield[static_cast<size_t>(evt.GetId() - 10000)];
+	field_item &tile = window::m_minefield[as_index<size_t>(evt)];
 	if(tile.isMine) {
-		wxMessageDialog d(nullptr, "You are dead. Play again?", "Drink barry's red cola", wxYES_NO | wxCENTRE);
+		wxMessageDialog d(nullptr, "It's ok, someone has to be the failure :)\nPlay again?", "Drink barry's red cola", wxYES_NO | wxCENTRE);
 		d.Layout();
 		if(d.ShowModal() == wxID_YES) {
 			// Restart game
 			window::m_firstclick = true;
 			for(auto &f : window::m_minefield) {
 				f.isMine = false;
-				f.uncovered = false;
 				f.button->Enable();
 				f.button->SetLabel("");
 			}
@@ -61,37 +88,25 @@ void window::btn_click(wxCommandEvent &evt)
 			wxExit();
 		}
 	} else {
-		tile.uncovered = true;
-		tile.button->Disable();
+		m_minefield[as_index<size_t>(evt)].handle_press();
+		printf("Uncovered %d\n", uncovered);
+		if(uncovered == m_threshold) {
+			wxMessageDialog d(nullptr, "Well done", ":)");
+			d.ShowModal();
+			wxExit();
+		}
 
-		int neighbours = count_neighbouring_mines(evt.GetId());
-		if(neighbours > 0)
-			tile.button->SetLabel(std::to_string(neighbours));
-
-		const auto revproc = [&](field_item &i) {
-			if(!i.isMine) {
-				i.uncovered = true;
-				i.button->Disable();
-
-				int n = count_neighbouring_mines(i.button->GetId());
-				if(n != 0)
-					i.button->SetLabel(std::to_string(n));
-			}
-		};
-
-		iterate_neighbours(evt.GetId(), 2 - neighbours, revproc);
 	}
 
 	evt.Skip();
 }
 
-void window::gen_grid(int btnid)
+void window::gen_grid(const wxCommandEvent &evt)
 {
 	std::srand(static_cast<uint32_t>(time(NULL)));
-	for(int i = 0; i < 100; i++) {
-		int coord = rand() % static_cast<int>(gridWidth * gridHeight);
-		size_t index = static_cast<size_t>(coord);
-		if(coord == btnid - 10000 || window::m_minefield[index].isMine) {
+	for(int i = 0; i < mineCount; i++) {
+		size_t index = static_cast<size_t>(rand()) % (gridWidth * gridHeight);
+		if(index == as_index<size_t>(evt) || window::m_minefield[index].isMine) {
 			// We don't want mines on the first square or where there is already a mine, but we do want 100 mines
 			i--;
 			continue;

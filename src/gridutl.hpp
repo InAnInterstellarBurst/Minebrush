@@ -1,5 +1,5 @@
 /*
-* window.hpp is part of this program. Copyright Connor M
+* gridutl.hpp is part of this program. Copyright Connor M
 *     This program is free software: you can redistribute it and/or modify
 *     it under the terms of the GNU General Public License as published by
 *     the Free Software Foundation, either version 3 of the License, or
@@ -15,32 +15,22 @@
 */
 
 #pragma once
-#include "gridutl.hpp"
 
-const int mineCount = 10;
+constexpr size_t gridWidth = 10;
+constexpr size_t gridHeight = 10;
 
-struct field_item {
-	bool isMine = false;
-	bool uncovered = false;
-	wxButton *button = nullptr;
+constexpr size_t grid_index(size_t x, size_t y)
+{
+	return y * gridHeight + x;
+}
 
-	void handle_press();
-};
+constexpr std::pair<int, int> id_to_btn_position(int btnid)
+{
+	return std::make_pair((btnid - 10000) % static_cast<int>(gridWidth), (btnid - 10000) / static_cast<int>(gridHeight));
+}
 
-class window : public wxFrame {
-friend struct field_item;
-public:
-	window();
-
-	static int uncovered;
-
-	static int count_neighbouring_mines(int btnid);
-	static void iterate_neighbours(int centreid, int radius, auto &foreachproc);
-private:
-	static int m_threshold;
-	static bool m_firstclick;
-	static std::array<field_item, gridWidth * gridHeight> m_minefield;
-
-	static void btn_click(wxCommandEvent &evt);
-	static void gen_grid(const wxCommandEvent &evt);
-};
+template<typename T>
+constexpr T as_index(const wxCommandEvent &evt)
+{
+	return static_cast<T>(evt.GetId() - 10000);
+}
