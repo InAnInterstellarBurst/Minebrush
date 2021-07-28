@@ -1,0 +1,17 @@
+# Folders
+.vs/
+.idea/
+.ccls-cache/
+bin/
+
+# Config files
+.directory
+.DS_Store
+*.ini
+*.json
+*.sln
+*.user
+*.vcxproj.*
+
+# Exceptions
+!CMakeSettings.json

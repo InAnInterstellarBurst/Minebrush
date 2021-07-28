@@ -1,0 +1,12 @@
+g++
+
+-Idep
+-Idep/spdlog/include
+
+-Isrc
+
+-DCU_DEBUG
+-Wall
+-Wextra
+%cpp -std=c++20
+%hpp --include=src/pch.hpp

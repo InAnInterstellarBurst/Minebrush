@@ -1,0 +1,6 @@
+[submodule "dep/spdlog"]
+	path = dep/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "dep/wxwidgets"]
+	path = dep/wxwidgets
+	url = https://github.com/wxWidgets/wxWidgets.git
