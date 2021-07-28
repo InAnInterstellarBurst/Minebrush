@@ -17,15 +17,18 @@
 #include "pch.hpp"
 #include "window.hpp"
 
+bool window::m_firstclick = false;
+std::array<field_item, gridWidth * gridHeight> window::m_minefield;
+
 window::window() : wxFrame(nullptr, wxID_ANY, "Minebrush", wxPoint(30, 30), wxSize(1280, 800))
 {
 	wxGridSizer *grid = new wxGridSizer(gridWidth, gridHeight, 1, 1);
 	for(size_t y = 0; y < gridHeight; y++) {
 		for(size_t x = 0; x < gridWidth; x++) {
 			size_t index = grid_index(x, y);
-			m_buttons[index] = new wxButton(this, static_cast<wxWindowID>(10000 + index));
-			grid->Add(m_buttons[index], 1, wxEXPAND);
-			m_buttons[index]->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &window::btn_click);
+			m_minefield[index].button = new wxButton(this, static_cast<wxWindowID>(10000 + index));
+			grid->Add(m_minefield[index].button, 1, wxEXPAND);
+			m_minefield[index].button->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &window::btn_click);
 		}
 	}
 
@@ -33,14 +36,16 @@ window::window() : wxFrame(nullptr, wxID_ANY, "Minebrush", wxPoint(30, 30), wxSi
 	grid->Layout();
 }
 
-window::~window()
-{
-
-}
-
 void window::btn_click(wxCommandEvent &evt)
 {
-	auto[x, y] = id_to_btn_index(evt.GetId());
-	std::cout << "x: " << x << "y: " << y << "\n";
+	if(window::m_firstclick) {
+		srand(time(NULL));
+		for(int i = 0; i < 30; i++) {
+			int coord = rand() % (gridWidth * gridHeight);
+			window::m_minefield[coord].isMine = true;
+			window::m_minefield[coord].button->SetLabel("Mine");
+		}
+	}
+
 	evt.Skip();
 }

@@ -29,12 +29,17 @@ constexpr std::pair<int, int> id_to_btn_index(int btnid)
 	return std::make_pair((btnid - 10000) % static_cast<int>(gridWidth), (btnid - 10000) / static_cast<int>(gridHeight));
 }
 
+struct field_item {
+	bool isMine = false;
+	wxButton *button = nullptr;
+};
+
 class window : public wxFrame {
 public:
 	window();
-	~window();
 private:
-	std::array<wxButton*, gridWidth * gridHeight> m_buttons;
+	static bool m_firstclick;
+	static std::array<field_item, gridWidth * gridHeight> m_minefield;
 
 	static void btn_click(wxCommandEvent &evt);
 };
