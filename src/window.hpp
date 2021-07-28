@@ -44,4 +44,6 @@ private:
 
 	static void gen_grid(int btnid);
 	static void btn_click(wxCommandEvent &evt);
+	static int count_neighbouring_mines(int btnid);
+	static void iterate_neighbours(int centreid, int radius, auto &foreachproc);
 };
