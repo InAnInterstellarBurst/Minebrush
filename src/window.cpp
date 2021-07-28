@@ -17,7 +17,9 @@
 #include "pch.hpp"
 #include "window.hpp"
 
-bool window::m_firstclick = false;
+#include <algorithm>
+
+bool window::m_firstclick = true;
 std::array<field_item, gridWidth * gridHeight> window::m_minefield;
 
 window::window() : wxFrame(nullptr, wxID_ANY, "Minebrush", wxPoint(30, 30), wxSize(1280, 800))
@@ -38,14 +40,43 @@ window::window() : wxFrame(nullptr, wxID_ANY, "Minebrush", wxPoint(30, 30), wxSi
 
 void window::btn_click(wxCommandEvent &evt)
 {
-	if(window::m_firstclick) {
-		srand(time(NULL));
-		for(int i = 0; i < 30; i++) {
-			int coord = rand() % (gridWidth * gridHeight);
-			window::m_minefield[coord].isMine = true;
-			window::m_minefield[coord].button->SetLabel("Mine");
+	if(window::m_firstclick)
+		gen_grid(evt.GetId());
+
+	if(window::m_minefield[evt.GetId() - 10000].isMine) {
+		wxMessageDialog d(nullptr, "You are dead. Play again?", "Drink barry's red cola", wxYES_NO | wxCENTRE);
+		d.Layout();
+		if(d.ShowModal() == wxID_YES) {
+			window::m_firstclick = true;
+			for(auto &f : window::m_minefield) {
+				f.isMine = false;
+				f.uncovered = false;
+				f.button->Enable();
+				f.button->SetLabel("");
+			}
+		} else {
+			wxMessageDialog(nullptr, "Alrght, looser").ShowModal();
+			wxExit();
 		}
 	}
 
 	evt.Skip();
+}
+
+void window::gen_grid(int btnid)
+{
+	std::srand(static_cast<uint32_t>(time(NULL)));
+	for(int i = 0; i < 100; i++) {
+		int coord = rand() % static_cast<int>(gridWidth * gridHeight);
+		size_t index = static_cast<size_t>(coord);
+		if(coord == btnid - 10000 || window::m_minefield[index].isMine) {
+			// We don't want mines on the first square or where there is already a mine, but we do want 100 mines
+			i--;
+			continue;
+		}
+
+		window::m_minefield[index].isMine = true;
+		window::m_minefield[index].button->SetLabel("Mine");
+		window::m_firstclick = false;
+	}
 }

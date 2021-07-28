@@ -24,13 +24,14 @@ constexpr size_t grid_index(size_t x, size_t y)
 	return y * gridHeight + x;
 }
 
-constexpr std::pair<int, int> id_to_btn_index(int btnid)
+constexpr std::pair<int, int> id_to_btn_position(int btnid)
 {
 	return std::make_pair((btnid - 10000) % static_cast<int>(gridWidth), (btnid - 10000) / static_cast<int>(gridHeight));
 }
 
 struct field_item {
 	bool isMine = false;
+	bool uncovered = false;
 	wxButton *button = nullptr;
 };
 
@@ -41,5 +42,6 @@ private:
 	static bool m_firstclick;
 	static std::array<field_item, gridWidth * gridHeight> m_minefield;
 
+	static void gen_grid(int btnid);
 	static void btn_click(wxCommandEvent &evt);
 };
