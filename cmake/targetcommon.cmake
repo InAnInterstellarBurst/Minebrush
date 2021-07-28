@@ -28,28 +28,14 @@ function(configure_common_target_properties target)
 endfunction()
 
 function(configure_compile_flags target)
-    if(MSVC)
-        target_compile_definitions(${target} PRIVATE NOMINMAX)
-        add_compile_options(${target} PRIVATE
-            # If you ever wonder why I shit on msvcc, just look at these wonderfully descriptive names
-            /permissive-
-            /W4 /w14640 /w14242 /w14254 /w14263 /w14265
-            /w14287 /we4289 /w14296 /w14311 /w14545 /w14546
-            /w14547 /w14549 /w14555 /w14619 /w14640 /w14826
-            /w14905 /w14906 /w14928
-            /wd6031 # Oddly enough the one warning msvc turns on by default is fucking awful (ignored return)
-            "$<$<CONFIG:RELEASE>:/fp:fast>"
-        )
-    else() # Assume clang/gcc
-        target_link_options(${target} PRIVATE "$<$<CONFIG:DEBUG>:-fsanitize=address,undefined>")
-        target_compile_options(${target} PRIVATE
-            -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic
-            -Wold-style-cast -Wcast-align -Wunused -Wformat=2
-            -Woverloaded-virtual -Wconversion -Wsign-conversion
-            -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches
-            -Wlogical-op -Wnull-dereference -Wdouble-promotion
-            $<$<CONFIG:RELEASE>:-Ofast -s>
-            "$<$<CONFIG:DEBUG>:-fsanitize=address,undefined>"
-        )
-    endif()
+    target_link_options(${target} PRIVATE "$<$<CONFIG:DEBUG>:-fsanitize=address,undefined>")
+    target_compile_options(${target} PRIVATE
+        -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic
+        -Wold-style-cast -Wcast-align -Wunused -Wformat=2
+        -Woverloaded-virtual -Wconversion -Wsign-conversion
+        -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches
+        -Wlogical-op -Wnull-dereference -Wdouble-promotion
+        $<$<CONFIG:RELEASE>:-Ofast -s>
+        "$<$<CONFIG:DEBUG>:-fsanitize=address,undefined>"
+    )
 endfunction()

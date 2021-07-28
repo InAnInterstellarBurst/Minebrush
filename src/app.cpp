@@ -1,5 +1,5 @@
 /*
-* pch.hpp is part of this program. Copyright Connor M
+* app.cpp is part of this program. Copyright Connor M
 *     This program is free software: you can redistribute it and/or modify
 *     it under the terms of the GNU General Public License as published by
 *     the Free Software Foundation, either version 3 of the License, or
@@ -14,14 +14,16 @@
 *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include <array>
-#include <vector>
-#include <vector>
-#include <memory>
-#include <string>
-#include <iostream>
-#include <string_view>
-
 #include <wx/wx.h>
+
+#include "app.hpp"
+#include "window.hpp"
+
+wxIMPLEMENT_APP(app);
+
+bool app::OnInit()
+{
+	m_win = new window();
+	m_win->Show();
+	return true;
+}

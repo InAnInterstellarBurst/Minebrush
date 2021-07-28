@@ -14,11 +14,15 @@
 
 include (${CMAKE_MODULE_PATH}/targetcommon.cmake)
 
+if(WIN32)
+    set(WINFLAG WIN32)
+endif()
+
 file(GLOB SRCS
     *.cpp *.hpp
 )
 
-add_library(Minebrush STATIC ${SRCS})
+add_executable(Minebrush ${WINFLAG} ${SRCS})
 target_precompile_headers(Minebrush PRIVATE pch.hpp)
 configure_compile_flags(Minebrush)
 configure_common_target_properties(Minebrush)

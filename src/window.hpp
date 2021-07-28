@@ -1,5 +1,5 @@
 /*
-* pch.hpp is part of this program. Copyright Connor M
+* window.hpp is part of this program. Copyright Connor M
 *     This program is free software: you can redistribute it and/or modify
 *     it under the terms of the GNU General Public License as published by
 *     the Free Software Foundation, either version 3 of the License, or
@@ -16,12 +16,25 @@
 
 #pragma once
 
-#include <array>
-#include <vector>
-#include <vector>
-#include <memory>
-#include <string>
-#include <iostream>
-#include <string_view>
+constexpr size_t gridWidth = 20;
+constexpr size_t gridHeight = 20;
 
-#include <wx/wx.h>
+constexpr size_t grid_index(size_t x, size_t y)
+{
+	return y * gridHeight + x;
+}
+
+constexpr std::pair<int, int> id_to_btn_index(int btnid)
+{
+	return std::make_pair((btnid - 10000) % static_cast<int>(gridWidth), (btnid - 10000) / static_cast<int>(gridHeight));
+}
+
+class window : public wxFrame {
+public:
+	window();
+	~window();
+private:
+	std::array<wxButton*, gridWidth * gridHeight> m_buttons;
+
+	static void btn_click(wxCommandEvent &evt);
+};

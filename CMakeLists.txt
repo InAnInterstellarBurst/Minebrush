@@ -16,21 +16,23 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Minebrush)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    message(FATAL_ERROR "MSVC is not supported, if you are using visual studio use clang")
+endif()
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-set(BUILD_SHARED_LIBS Off)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # Just to be sure
 add_compile_definitions($<$<CONFIG:RELEASE>:NDEBUG>)
 
 set(wxUSE_STL On)
-add_subdirectory(dep/spdlog)
+set(wxBUILD_SHARED On)
 add_subdirectory(dep/wxwidgets)
-set_property(TARGET spdlog PROPERTY FOLDER "Dependencies")
-
+add_subdirectory(dep/spdlog)
 add_subdirectory(src)
 
 if(${CMAKE_GENERATOR} MATCHES "Visual Studio")

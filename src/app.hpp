@@ -1,5 +1,5 @@
 /*
-* pch.hpp is part of this program. Copyright Connor M
+* app.hpp is part of this program. Copyright Connor M
 *     This program is free software: you can redistribute it and/or modify
 *     it under the terms of the GNU General Public License as published by
 *     the Free Software Foundation, either version 3 of the License, or
@@ -16,12 +16,11 @@
 
 #pragma once
 
-#include <array>
-#include <vector>
-#include <vector>
-#include <memory>
-#include <string>
-#include <iostream>
-#include <string_view>
+class window;
 
-#include <wx/wx.h>
+class app : public wxApp {
+public:
+	bool OnInit() override;
+private:
+	window *m_win = nullptr;
+};

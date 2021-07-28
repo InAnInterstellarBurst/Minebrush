@@ -2,10 +2,12 @@ g++
 
 -Idep
 -Idep/spdlog/include
+-Idep/wxwidgets/include
 
 -Isrc
 
 -DCU_DEBUG
+-DwxUSE_GUI
 -Wall
 -Wextra
 %cpp -std=c++20
