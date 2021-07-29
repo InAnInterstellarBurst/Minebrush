@@ -154,7 +154,9 @@ void minefield::populate_field(int clickindex)
 		}
 
 		m_field[index].mine = true;
+#ifndef NDEBUG
 		m_field[index].get_btn()->SetLabel("Mine");
+#endif
 	}
 }
 
