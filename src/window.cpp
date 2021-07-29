@@ -22,11 +22,11 @@
 bool window::m_firstclick = true;
 std::unique_ptr<minefield> window::m_field = nullptr;
 
-window::window(int gridsize, int minecount) : wxFrame(nullptr, wxID_ANY, "Minebrush", wxPoint(30, 30), wxSize(1280, 800))
+window::window(int gridsize, int minecount, int flags) : wxFrame(nullptr, wxID_ANY, "Minebrush", wxPoint(30, 30), wxSize(1280, 800))
 {
 	wxGridSizer *grid = new wxGridSizer(gridsize, gridsize, 1, 1);
 	if(m_field == nullptr)
-		m_field = std::make_unique<minefield>(this, grid, minecount, gridsize);
+		m_field = std::make_unique<minefield>(this, grid, minecount, gridsize, flags);
 
 	this->SetSizer(grid);
 	grid->Layout();
@@ -44,4 +44,9 @@ void window::btn_click(wxCommandEvent &evt)
 	if(m_field->reveal_tile(evt.GetId() - kBtnIdOffset))
 		m_firstclick = true;
 	evt.Skip();
+}
+
+void window::right_click(wxMouseEvent &evt)
+{
+	m_field->flag(evt.GetId() - kBtnIdOffset);
 }

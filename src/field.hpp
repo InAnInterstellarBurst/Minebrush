@@ -23,8 +23,8 @@ class tile {
 public:
 	bool mine = false;
 
-	void toggle_flag();
 	tile(window *w, wxGridSizer *uigrid, int index);
+	int toggle_flag(int remaining);
 	int uncover(const minefield &field);
 
 	inline wxButton *get_btn() const { return m_button; }
@@ -39,10 +39,11 @@ private:
 
 class minefield {
 public:
-	minefield(window *w, wxGridSizer *uigrid, int mines, int gridSize);
+	minefield(window *w, wxGridSizer *uigrid, int mines, int gridSize, int flags);
 
 	bool reveal_tile(int tileindex);
 	void clear_field();
+	void flag(int clickindex);
 	void populate_field(int clickindex);
 
 	int count_neighbours(int tileindex) const;
@@ -51,6 +52,7 @@ private:
 	int m_mines;
 	int m_gridSize;
 	int m_activeTiles;
+	int m_flagsRemaining;
 	std::vector<tile> m_field;
 
 	std::pair<int, int> index_to_position(int index) const;

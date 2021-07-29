@@ -18,10 +18,13 @@
 #include "field.hpp"
 #include "window.hpp"
 
+#include <wx/panel.h>
+
 tile::tile(window *w, wxGridSizer *uigrid, int index) : m_index(index)
 {
 	m_button = new wxButton(w, index + window::kBtnIdOffset);
 	uigrid->Add(m_button, 1, wxEXPAND);
+	m_button->Bind(wxEVT_RIGHT_DOWN, &window::right_click);
 	m_button->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &window::btn_click);
 }
 
@@ -42,14 +45,23 @@ int tile::uncover(const minefield &field)
 	return 1 + uncover_neighbours(field, neighbours);
 }
 
-void tile::toggle_flag()
+// This function is absolutely fucking awful
+// but it's the only I can get this to work
+int tile::toggle_flag(int flags)
 {
-	m_flagged = !m_flagged;
 	if(m_flagged) {
-		m_button->SetLabel("!");
-	} else {
+		m_flagged = false;
 		m_button->SetLabel("");
+		return flags + 1;
 	}
+
+	if(flags > 0 && !m_flagged) {
+		m_flagged = true;
+		m_button->SetLabel("!");
+		return flags - 1;
+	}
+
+	return 0;
 }
 
 int tile::uncover_neighbours(const minefield &field, int neighbours)
@@ -71,8 +83,9 @@ int tile::uncover_neighbours(const minefield &field, int neighbours)
 }
 
 
-minefield::minefield(window *w, wxGridSizer *uigrid, int mines, int gridSize) :
-	m_mines(mines), m_gridSize(gridSize), m_activeTiles((gridSize * gridSize) - mines)
+minefield::minefield(window *w, wxGridSizer *uigrid, int mines, int gridSize, int flags) :
+	m_mines(mines), m_gridSize(gridSize), m_activeTiles((gridSize * gridSize) - mines),
+	m_flagsRemaining(flags)
 {
 	m_field.reserve(gridSize * gridSize);
 	for(int y = 0; y < gridSize; y++) {
@@ -119,6 +132,11 @@ void minefield::clear_field()
 		t.get_btn()->Enable();
 		t.get_btn()->SetLabel("");
 	}
+}
+
+void minefield::flag(int clickindex)
+{
+	m_flagsRemaining = m_field[clickindex].toggle_flag(m_flagsRemaining);
 }
 
 void minefield::populate_field(int clickindex)

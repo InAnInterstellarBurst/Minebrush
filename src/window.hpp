@@ -20,9 +20,10 @@
 class window : public wxFrame {
 friend struct field_item;
 public:
-	window(int gridsize, int minecount);
+	window(int gridsize, int minecount, int flags);
 
 	static void btn_click(wxCommandEvent &evt);
+	static void right_click(wxMouseEvent &evt);
 	constexpr static int kBtnIdOffset = 10000;
 private:
 	static bool m_firstclick;
