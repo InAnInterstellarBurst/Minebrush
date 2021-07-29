@@ -15,32 +15,16 @@
 */
 
 #pragma once
-#include "gridutl.hpp"
-
-const int mineCount = 10;
-
-struct field_item {
-	bool isMine = false;
-	bool uncovered = false;
-	wxButton *button = nullptr;
-
-	void handle_press();
-};
+#include "field.hpp"
 
 class window : public wxFrame {
 friend struct field_item;
 public:
 	window();
 
-	static int uncovered;
-
-	static int count_neighbouring_mines(int btnid);
-	static void iterate_neighbours(int centreid, int radius, auto &foreachproc);
-private:
-	static int m_threshold;
-	static bool m_firstclick;
-	static std::array<field_item, gridWidth * gridHeight> m_minefield;
-
 	static void btn_click(wxCommandEvent &evt);
-	static void gen_grid(const wxCommandEvent &evt);
+	constexpr static int kBtnIdOffet = 10000;
+private:
+	static bool m_firstclick;
+	static std::unique_ptr<minefield> m_field;
 };
