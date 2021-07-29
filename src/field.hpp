@@ -24,27 +24,31 @@ public:
 	bool mine = false;
 
 	tile(window *w, wxGridSizer *uigrid, int index);
-	bool uncover(const minefield &field);
+	int uncover(const minefield &field);
 
 	inline wxButton *get_btn() const { return m_button; }
 private:
 	int m_index;
-	bool m_uncovered = false;
+	mutable bool m_uncovered = false;
 	wxButton *m_button = nullptr;
 
-	void uncover_neighbours(const minefield &field, int neighbours);
+	int uncover_neighbours(const minefield &field, int neighbours);
 };
 
 class minefield {
 public:
 	minefield(window *w, wxGridSizer *uigrid, int mines, int gridSize);
 
+	bool reveal_tile(int tileindex);
+	void clear_field();
 	void populate_field(int clickindex);
+
 	int count_neighbours(int tileindex) const;
 	void iterate_neighbours(int centreindex, int radius, auto &foreachproc) const;
 private:
 	int m_mines;
 	int m_gridSize;
+	int m_activeTiles;
 	std::vector<tile> m_field;
 
 	std::pair<int, int> index_to_position(int index) const;

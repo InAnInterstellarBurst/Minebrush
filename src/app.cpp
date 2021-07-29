@@ -23,7 +23,10 @@ wxIMPLEMENT_APP(app);
 
 bool app::OnInit()
 {
-	m_win = new window();
+	int gridsize = 20;
+	int minecount = 100;
+
+	m_win = new window(gridsize, minecount);
 	m_win->Show();
 	return true;
 }

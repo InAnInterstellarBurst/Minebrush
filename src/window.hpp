@@ -20,10 +20,10 @@
 class window : public wxFrame {
 friend struct field_item;
 public:
-	window();
+	window(int gridsize, int minecount);
 
 	static void btn_click(wxCommandEvent &evt);
-	constexpr static int kBtnIdOffet = 10000;
+	constexpr static int kBtnIdOffset = 10000;
 private:
 	static bool m_firstclick;
 	static std::unique_ptr<minefield> m_field;
