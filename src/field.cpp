@@ -127,7 +127,7 @@ void minefield::populate_field(int clickindex)
 	}
 }
 
-int minefield::count_neighbours(int tileindex)
+int minefield::count_neighbours(int tileindex) const
 {
 	int count = 0;
 	const auto countproc = [&](const tile &i) {
@@ -139,7 +139,7 @@ int minefield::count_neighbours(int tileindex)
 	return count;
 }
 
-void minefield::iterate_neighbours(int centreindex, int radius, auto &foreachproc)
+void minefield::iterate_neighbours(int centreindex, int radius, auto &foreachproc) const
 {
 	auto[ox, oy] = index_to_position(centreindex);
 	for(int dy = -radius; dy < radius * 2; dy++) {
