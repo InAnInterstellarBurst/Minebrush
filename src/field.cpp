@@ -33,8 +33,10 @@ tile::tile(window *w, wxGridSizer *uigrid, int index) : m_index(index)
 * */
 int tile::uncover(const minefield &field)
 {
-	if(mine)
+	if(m_flagged)
 		return 0;
+	if(mine)
+		return -1;
 
 	m_uncovered = true;
 	m_button->Disable();
@@ -68,7 +70,7 @@ int tile::uncover_neighbours(const minefield &field, int neighbours)
 {
 	int uncoveredNeighbours = 0;
 	const auto revproc = [&](const tile &i) {
-		if(!i.mine && !i.m_uncovered) {
+		if(!i.mine && !i.m_uncovered && !i.m_flagged) {
 			uncoveredNeighbours++;
 			i.m_button->Disable();
 			i.m_uncovered = true;
@@ -85,7 +87,7 @@ int tile::uncover_neighbours(const minefield &field, int neighbours)
 
 minefield::minefield(window *w, wxGridSizer *uigrid, int mines, int gridSize, int flags) :
 	m_mines(mines), m_gridSize(gridSize), m_activeTiles((gridSize * gridSize) - mines),
-	m_flagsRemaining(flags)
+	m_flagsRemaining(flags), m_totalFlags(flags)
 {
 	m_field.reserve(gridSize * gridSize);
 	for(int y = 0; y < gridSize; y++) {
@@ -101,7 +103,7 @@ minefield::minefield(window *w, wxGridSizer *uigrid, int mines, int gridSize, in
 bool minefield::reveal_tile(int tileindex)
 {
 	int tilesrevealed = m_field[tileindex].uncover(*this);
-	if(tilesrevealed != 0) {
+	if(tilesrevealed != -1) {
 		m_activeTiles -= tilesrevealed;
 		if(m_activeTiles == 0) {
 			wxMessageDialog win(nullptr, "Wow, I am very impressed");
@@ -128,10 +130,13 @@ bool minefield::reveal_tile(int tileindex)
 void minefield::clear_field()
 {
 	for(auto &t : m_field) {
+		t.deflag();
 		t.mine = false;
 		t.get_btn()->Enable();
 		t.get_btn()->SetLabel("");
 	}
+
+	m_flagsRemaining = m_totalFlags;
 }
 
 void minefield::flag(int clickindex)

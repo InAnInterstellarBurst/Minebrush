@@ -27,6 +27,7 @@ public:
 	int toggle_flag(int remaining);
 	int uncover(const minefield &field);
 
+	inline void deflag() { m_flagged = false; }
 	inline wxButton *get_btn() const { return m_button; }
 private:
 	int m_index;
@@ -53,6 +54,7 @@ private:
 	int m_gridSize;
 	int m_activeTiles;
 	int m_flagsRemaining;
+	const int m_totalFlags;
 	std::vector<tile> m_field;
 
 	std::pair<int, int> index_to_position(int index) const;
