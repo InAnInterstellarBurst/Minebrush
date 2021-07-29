@@ -18,8 +18,6 @@
 #include "field.hpp"
 #include "window.hpp"
 
-#include <wx/panel.h>
-
 tile::tile(window *w, wxGridSizer *uigrid, int index) : m_index(index)
 {
 	m_button = new wxButton(w, index + window::kBtnIdOffset);
