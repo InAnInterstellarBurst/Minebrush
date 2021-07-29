@@ -32,7 +32,7 @@ function(configure_compile_flags target)
     target_compile_options(${target} PRIVATE
         -Wall -Wextra -Wshadow -Wnon-virtual-dtor -pedantic
         -Wold-style-cast -Wcast-align -Wunused -Wformat=2
-        -Woverloaded-virtual -Wconversion -Wsign-conversion
+        -Woverloaded-virtual -Wconversion
         -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches
         -Wlogical-op -Wnull-dereference -Wdouble-promotion
         $<$<CONFIG:RELEASE>:-Ofast -s>

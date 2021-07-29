@@ -20,7 +20,7 @@
 
 tile::tile(window *w, wxGridSizer *uigrid, int index) : m_index(index)
 {
-	m_button = new wxButton(w, index + window::kBtnIdOffset);
+	m_button = new wxButton(w, index + window::kBtnIdOffet);
 	uigrid->Add(m_button);
 	m_button->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &window::btn_click);
 }
@@ -71,7 +71,7 @@ void minefield::populate_field(int clickindex)
 {
 	std::srand(static_cast<uint32_t>(time(nullptr)));
 	for(int i = 0; i < m_mines; i++) {
-		int index = rand() % (gridWidth * gridHeight);
+		int index = rand() % (m_gridSize * m_gridSize);
 		if(index == clickindex || m_field[index].mine) {
 			// We don't want mines on the first square or where there is already a mine, but we do want 100 mines
 			i--;
@@ -83,7 +83,7 @@ void minefield::populate_field(int clickindex)
 	}
 }
 
-int minefield::count_neighbours(int tileindex) const
+int minefield::count_neighbours(int tileindex)
 {
 	int count = 0;
 	const auto countproc = [&](tile &i) {
@@ -95,7 +95,7 @@ int minefield::count_neighbours(int tileindex) const
 	return count;
 }
 
-void minefield::iterate_neighbours(int centreindex, int radius, auto &foreachproc) const
+void minefield::iterate_neighbours(int centreindex, int radius, auto &foreachproc)
 {
 	auto[ox, oy] = index_to_position(centreindex);
 	for(int dy = -radius; dy < radius * 2; dy++) {
@@ -106,10 +106,10 @@ void minefield::iterate_neighbours(int centreindex, int radius, auto &foreachpro
 			// Omit centre + bounds check
 			if(dx == 0 && dy == 0)
 				continue;
-			if(x < 0 || y < 0 || x >= static_cast<int>(gridWidth) || y >= static_cast<int>(gridHeight))
+			if(x < 0 || y < 0 || x >= m_gridSize || y >= m_gridSize)
 				continue;
 
-			int index = grid_index(x, y);
+			int index = as_index(x, y);
 			foreachproc(m_field[index]);
 		}
 	}
