@@ -21,14 +21,17 @@
 tile::tile(window *w, wxGridSizer *uigrid, int index) : m_index(index)
 {
 	m_button = new wxButton(w, index + window::kBtnIdOffset);
-	uigrid->Add(m_button);
+	uigrid->Add(m_button, 1, wxEXPAND);
 	m_button->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &window::btn_click);
 }
 
-bool tile::uncover(const minefield &field)
+/*
+* @return The number of tiles revealed
+* */
+int tile::uncover(const minefield &field)
 {
 	if(mine)
-		return false;
+		return 0;
 
 	m_uncovered = true;
 	m_button->Disable();
@@ -36,14 +39,15 @@ bool tile::uncover(const minefield &field)
 	int neighbours = field.count_neighbours(m_index);
 	if(neighbours > 0)
 		m_button->SetLabel(std::to_string(neighbours));
-	uncover_neighbours(field, neighbours);
-	return true;
+	return 1 + uncover_neighbours(field, neighbours);
 }
 
-void tile::uncover_neighbours(const minefield &field, int neighbours)
+int tile::uncover_neighbours(const minefield &field, int neighbours)
 {
-	const auto revproc = [&](tile &i) {
+	int uncoveredNeighbours = 0;
+	const auto revproc = [&](const tile &i) {
 		if(!i.mine && !i.m_uncovered) {
+			uncoveredNeighbours++;
 			i.m_button->Disable();
 			i.m_uncovered = true;
 			int n = field.count_neighbours(i.m_index);
@@ -53,11 +57,12 @@ void tile::uncover_neighbours(const minefield &field, int neighbours)
 	};
 
 	field.iterate_neighbours(m_index, 2 - neighbours, revproc);
+	return uncoveredNeighbours;
 }
 
 
 minefield::minefield(window *w, wxGridSizer *uigrid, int mines, int gridSize) :
-	m_mines(mines), m_gridSize(gridSize)
+	m_mines(mines), m_gridSize(gridSize), m_activeTiles((gridSize * gridSize) - mines)
 {
 	m_field.reserve(gridSize * gridSize);
 	for(int y = 0; y < gridSize; y++) {
@@ -67,11 +72,50 @@ minefield::minefield(window *w, wxGridSizer *uigrid, int mines, int gridSize) :
 	}
 }
 
+/*
+* @return true if game restarts
+*/
+bool minefield::reveal_tile(int tileindex)
+{
+	int tilesrevealed = m_field[tileindex].uncover(*this);
+	if(tilesrevealed != 0) {
+		m_activeTiles -= tilesrevealed;
+		if(m_activeTiles == 0) {
+			wxMessageDialog win(nullptr, "Wow, I am very impressed");
+			win.ShowModal();
+			wxExit();
+		}
+	} else {
+		// Loss
+		wxMessageDialog retry(nullptr, "I'm in awe that you managed to loose, I really am.\nTry again?",
+			"Drink Barry's red cola", wxYES_NO | wxCENTRE);
+		if(retry.ShowModal() == wxID_YES) {
+			clear_field();
+			return true;
+		} else {
+			wxMessageDialog d(nullptr, "Ok, looser");
+			d.ShowModal();
+			wxExit();
+		}
+	}
+
+	return false;
+}
+
+void minefield::clear_field()
+{
+	for(auto &t : m_field) {
+		t.mine = false;
+		t.get_btn()->Enable();
+		t.get_btn()->SetLabel("");
+	}
+}
+
 void minefield::populate_field(int clickindex)
 {
 	std::srand(static_cast<uint32_t>(time(nullptr)));
 	for(int i = 0; i < m_mines; i++) {
-		int index = rand() % (gridWidth * gridHeight);
+		int index = rand() % (m_gridSize * m_gridSize);
 		if(index == clickindex || m_field[index].mine) {
 			// We don't want mines on the first square or where there is already a mine, but we do want 100 mines
 			i--;
@@ -86,7 +130,7 @@ void minefield::populate_field(int clickindex)
 int minefield::count_neighbours(int tileindex) const
 {
 	int count = 0;
-	const auto countproc = [&](tile &i) {
+	const auto countproc = [&](const tile &i) {
 		if(i.mine)
 			count++;
 	};
@@ -106,10 +150,10 @@ void minefield::iterate_neighbours(int centreindex, int radius, auto &foreachpro
 			// Omit centre + bounds check
 			if(dx == 0 && dy == 0)
 				continue;
-			if(x < 0 || y < 0 || x >= static_cast<int>(gridWidth) || y >= static_cast<int>(gridHeight))
+			if(x < 0 || y < 0 || x >= m_gridSize || y >= m_gridSize)
 				continue;
 
-			int index = grid_index(x, y);
+			int index = as_index(x, y);
 			foreachproc(m_field[index]);
 		}
 	}

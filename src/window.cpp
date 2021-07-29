@@ -22,51 +22,26 @@
 bool window::m_firstclick = true;
 std::unique_ptr<minefield> window::m_field = nullptr;
 
-constexpr int gridsize = 10;
-constexpr int minecount = 50;
-
-window::window() : wxFrame(nullptr, wxID_ANY, "Minebrush", wxPoint(30, 30), wxSize(1280, 800))
+window::window(int gridsize, int minecount) : wxFrame(nullptr, wxID_ANY, "Minebrush", wxPoint(30, 30), wxSize(1280, 800))
 {
 	wxGridSizer *grid = new wxGridSizer(gridsize, gridsize, 1, 1);
 	if(m_field == nullptr)
 		m_field = std::make_unique<minefield>(this, grid, minecount, gridsize);
+
 	this->SetSizer(grid);
 	grid->Layout();
 }
 
 void window::btn_click(wxCommandEvent &evt)
 {
-	if(m_firstclick)
-		m_field->populate_field(evt.GetId() - kBtnIdOffet);
-
-#if 0
-	field_item &tile = window::m_minefield[as_index<size_t>(evt)];
-	if(tile.isMine) {
-		wxMessageDialog d(nullptr, "It's ok, someone has to be the failure :)\nPlay again?", "Drink barry's red cola", wxYES_NO | wxCENTRE);
-		d.Layout();
-		if(d.ShowModal() == wxID_YES) {
-			// Restart game
-			window::m_firstclick = true;
-			for(auto &f : window::m_minefield) {
-				f.isMine = false;
-				f.button->Enable();
-				f.button->SetLabel("");
-			}
-		} else {
-			wxMessageDialog(nullptr, "Alrght, looser").ShowModal();
-			wxExit();
-		}
-	} else {
-		m_minefield[as_index<size_t>(evt)].handle_press();
-		printf("Uncovered %d\n", uncovered);
-		if(uncovered == m_threshold) {
-			wxMessageDialog d(nullptr, "Well done", ":)");
-			d.ShowModal();
-			wxExit();
-		}
-
+	if(m_firstclick) {
+		m_field->populate_field(evt.GetId() - kBtnIdOffset);
+		m_firstclick = false;
 	}
-#endif
 
+	// This seems a bit nonsensical, if reveal tile returns true
+	// the game was reset
+	if(m_field->reveal_tile(evt.GetId() - kBtnIdOffset))
+		m_firstclick = true;
 	evt.Skip();
 }
