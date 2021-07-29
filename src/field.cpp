@@ -42,6 +42,16 @@ int tile::uncover(const minefield &field)
 	return 1 + uncover_neighbours(field, neighbours);
 }
 
+void tile::toggle_flag()
+{
+	m_flagged = !m_flagged;
+	if(m_flagged) {
+		m_button->SetLabel("!");
+	} else {
+		m_button->SetLabel("");
+	}
+}
+
 int tile::uncover_neighbours(const minefield &field, int neighbours)
 {
 	int uncoveredNeighbours = 0;

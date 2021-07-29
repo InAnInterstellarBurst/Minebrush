@@ -23,12 +23,14 @@ class tile {
 public:
 	bool mine = false;
 
+	void toggle_flag();
 	tile(window *w, wxGridSizer *uigrid, int index);
 	int uncover(const minefield &field);
 
 	inline wxButton *get_btn() const { return m_button; }
 private:
 	int m_index;
+	bool m_flagged = false;
 	mutable bool m_uncovered = false;
 	wxButton *m_button = nullptr;
 
