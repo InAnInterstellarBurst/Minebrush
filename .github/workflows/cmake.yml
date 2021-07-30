@@ -28,7 +28,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/bin --config ${{env.BUILD_TYPE}}
 
     - name: Release
-      use: actions/create-release@v1
+      uses: actions/create-release@v1
       id: create_release
       with:
         draft: false
