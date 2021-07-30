@@ -1,0 +1,53 @@
+name: CMake
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build_ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Get deps
+      run: sudo apt install ninja-build
+
+    - name: Configure CMake
+      run: cmake -GNinja -B ${{github.workspace}}/bin -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/bin --config ${{env.BUILD_TYPE}}
+
+    - name: Release
+      use: actions/create-release@v1
+      id: create_release
+      with:
+        draft: false
+        prerelease: false
+        release_name: The only release
+        tag_name: ${{github.ref}}
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
+  build_win32:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/bin -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/bin --config ${{env.BUILD_TYPE}}
