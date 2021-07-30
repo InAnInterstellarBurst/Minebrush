@@ -19,7 +19,7 @@ jobs:
         submodules: recursive
 
     - name: Get deps
-      run: sudo apt install ninja-build
+      run: sudo apt install ninja-build libgtk-3-dev
 
     - name: Configure CMake
       run: cmake -GNinja -B ${{github.workspace}}/bin -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
