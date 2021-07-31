@@ -41,6 +41,7 @@ bool app::OnInit()
 	int gridsize = 20;
 	int minecount = 100;
 
+
 	for(int i = 0; i < argc; i++) {
 		if(strcmp(argv[i].c_str(), "-width") == 0) {
 			gridsize = atoi(argv[++i].c_str());
@@ -51,6 +52,15 @@ bool app::OnInit()
 			flags = atoi(argv[++i].c_str());
 		} else if(strcmp(argv[i].c_str(), "-showmines") == 0) {
 			kShowMines = true;
+		} else if(strcmp(argv[i].c_str(), "-gpl") == 0) {
+			std::cout << gplnotice << std::endl;
+		} else if(strcmp(argv[i].c_str(), "-help") == 0) {
+			std::cout << "Minebrush args:\n"
+				"-width n{=20}:                               The number of tiles across the grid, n^2 is the grid size\n"
+				"-mines m (where 20% < m < %50 of grid size): Number of mines, 25% of board if unspecificed.\n"
+				"-flags n:                                    Number of allowed flags\n"
+				"-gpl:                                        Display GPL and warranty notice (Shock: There isn't one)\n"
+				"-showmines:                                  Good for cheating or debugging" << std::endl;
 		}
 	}
 
@@ -61,7 +71,6 @@ bool app::OnInit()
 		wxExit();
 	}
 
-	std::cout << gplnotice << std::endl;
 	m_win = new window(gridsize, minecount, flags);
 	m_win->Show();
 	return true;
