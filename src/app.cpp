@@ -42,8 +42,9 @@ bool app::OnInit()
 	int minecount = 100;
 
 	for(int i = 0; i < argc; i++) {
-		if(strcmp(argv[i].c_str(), "-size") == 0) {
+		if(strcmp(argv[i].c_str(), "-width") == 0) {
 			gridsize = atoi(argv[++i].c_str());
+			minecount = gridsize * gridsize / 4;
 		} else if(strcmp(argv[i].c_str(), "-mines") == 0) {
 			minecount = atoi(argv[++i].c_str());
 		} else if(strcmp(argv[i].c_str(), "-flags") == 0) {
@@ -53,8 +54,10 @@ bool app::OnInit()
 		}
 	}
 
-	if(gridsize == 0 || minecount == 0 || (gridsize * gridsize) / 2 <= minecount || ((gridsize * gridsize) / 100) * 20 >= minecount) {
-		std::cout << "Invalid game arguements.\n\tGridsize != 0\n\tMinecount != 0\n\tGrid must be more than 20% mines\n\tGrid cannot be more than 50% mines\n";
+	if(gridsize == 0 || minecount == 0 || (gridsize * gridsize) / 2 <= minecount
+		|| ((gridsize * gridsize) / 100) * 20 >= minecount || gridsize * gridsize > 1000) {
+		std::cout << "Invalid game arguements.\n\tGridsize != 0\n\tMinecount != 0\n\tGrid must be more than 20% mines"
+			"\n\tGrid cannot be more than 50% mines\n\tGrid must be less than 1000" << std::endl;
 		wxExit();
 	}
 
