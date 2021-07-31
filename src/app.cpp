@@ -14,6 +14,7 @@
 *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "pch.hpp"
 #include <wx/wx.h>
 
 #include "app.hpp"
@@ -36,11 +37,29 @@ const std::string gplnotice = "=================================================
 
 bool app::OnInit()
 {
+	int flags = 10;
 	int gridsize = 20;
 	int minecount = 100;
 
+	for(int i = 0; i < argc; i++) {
+		if(strcmp(argv[i].c_str(), "-size") == 0) {
+			gridsize = atoi(argv[++i].c_str());
+		} else if(strcmp(argv[i].c_str(), "-mines") == 0) {
+			minecount = atoi(argv[++i].c_str());
+		} else if(strcmp(argv[i].c_str(), "-flags") == 0) {
+			flags = atoi(argv[++i].c_str());
+		} else if(strcmp(argv[i].c_str(), "-showmines") == 0) {
+			kShowMines = true;
+		}
+	}
+
+	if(gridsize == 0 || minecount == 0 || (gridsize * gridsize) / 2 <= minecount || ((gridsize * gridsize) / 100) * 20 >= minecount) {
+		std::cout << "Invalid game arguements.\n\tGridsize != 0\n\tMinecount != 0\n\tGrid must be more than 20% mines\n\tGrid cannot be more than 50% mines\n";
+		wxExit();
+	}
+
 	std::cout << gplnotice << std::endl;
-	m_win = new window(gridsize, minecount, 10);
+	m_win = new window(gridsize, minecount, flags);
 	m_win->Show();
 	return true;
 }

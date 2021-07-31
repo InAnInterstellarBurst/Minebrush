@@ -18,6 +18,8 @@
 #include "field.hpp"
 #include "window.hpp"
 
+const wxColour tile::kUncoveredColour = { 211, 211, 211 };
+
 tile::tile(window *w, wxGridSizer *uigrid, int index) : m_index(index)
 {
 	m_button = new wxButton(w, index + window::kBtnIdOffset);
@@ -38,6 +40,7 @@ int tile::uncover(const minefield &field)
 
 	m_uncovered = true;
 	m_button->Disable();
+	m_button->SetBackgroundColour(kUncoveredColour);
 
 	int neighbours = field.count_neighbours(m_index);
 	if(neighbours > 0)
@@ -70,15 +73,16 @@ int tile::uncover_neighbours(const minefield &field, int neighbours)
 	const auto revproc = [&](const tile &i) {
 		if(!i.mine && !i.m_uncovered && !i.m_flagged) {
 			uncoveredNeighbours++;
-			i.m_button->Disable();
 			i.m_uncovered = true;
+			i.m_button->Disable();
+			i.m_button->SetBackgroundColour(kUncoveredColour);
 			int n = field.count_neighbours(i.m_index);
 			if(n != 0)
 				i.m_button->SetLabel(std::to_string(n));
 		}
 	};
 
-	field.iterate_neighbours(m_index, 2 - neighbours, revproc);
+	field.iterate_neighbours(m_index, (field.area() / field.mine_count()) - neighbours, revproc);
 	return uncoveredNeighbours;
 }
 
@@ -132,6 +136,7 @@ void minefield::clear_field()
 		t.mine = false;
 		t.get_btn()->Enable();
 		t.get_btn()->SetLabel("");
+		t.get_btn()->SetBackgroundColour({});
 	}
 
 	m_flagsRemaining = m_totalFlags;
@@ -154,9 +159,8 @@ void minefield::populate_field(int clickindex)
 		}
 
 		m_field[index].mine = true;
-#ifndef NDEBUG
-		m_field[index].get_btn()->SetLabel("Mine");
-#endif
+		if(kShowMines)
+			m_field[index].get_btn()->SetLabel("Mine");
 	}
 }
 

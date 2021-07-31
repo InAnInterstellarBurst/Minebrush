@@ -19,6 +19,8 @@
 class window;
 class minefield;
 
+inline bool kShowMines = false;
+
 class tile {
 public:
 	bool mine = false;
@@ -36,6 +38,8 @@ private:
 	wxButton *m_button = nullptr;
 
 	int uncover_neighbours(const minefield &field, int neighbours);
+
+	static const wxColour kUncoveredColour;
 };
 
 class minefield {
@@ -49,6 +53,10 @@ public:
 
 	int count_neighbours(int tileindex) const;
 	void iterate_neighbours(int centreindex, int radius, auto &foreachproc) const;
+
+	inline int size() const { return m_gridSize; }
+	inline int area() const { return m_gridSize * m_gridSize; }
+	inline int mine_count() const { return m_mines; }
 private:
 	int m_mines;
 	int m_gridSize;
